@@ -209,7 +209,7 @@ def _main(  # noqa: C901, PLR0912
             abort(f"Failed to find previous tag of '{tag}'", exc=exc)
         if previous_tag is None:
             print_stderr(
-                f"[bold yellow]warning:[/bold yellow] No previous tag for '{tag}'"
+                f"[bold yellow]warning:[/bold yellow] No previous tag for '{tag}'",
             )
 
     if diff_url is not None and previous_tag is not None:

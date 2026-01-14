@@ -67,7 +67,7 @@ CHANGELOG_RELEASE_H3 = """\
 class FileFactory:
     """Create `file` and all its parents directories."""
 
-    def __call__(
+    def __call__(  # noqa: D102
         self,
         file: str | PathLike[str],
         content: str | bytes | None = None,
