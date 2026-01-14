@@ -11,14 +11,6 @@ in the repo.
 
 <!-- towncrier release notes start -->
 
-## [1.0.1](https://github.com/owner/repo/releases/tag/1.0.1) - 2026-01-10
+## [1.0.0](https://github.com/tahv/hed/releases/tag/1.0.0) - 2026-01-14
 
-### Bug fixes
-
-- Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
-## [1.0.0](https://github.com/owner/repo/releases/tag/1.0.0) - 2026-01-9
-
-### Breaking changes
-
-- Removed a deprecated feature. ([#1](https://github.com/owner/repo/pull/1))
+- Initial release. ([!1](https://github.com/tahv/hed/issues/1))
