@@ -533,7 +533,7 @@ def test_find_previous_tag(
     """)
 
 
-def test_error_failed_to_find_previous_tag(
+def test_warning_failed_to_find_previous_tag(
     repo: pygit2.Repository,
     signature: pygit2.Signature,
     file_factory: FileFactory,
@@ -541,26 +541,24 @@ def test_error_failed_to_find_previous_tag(
 ) -> None:
     initial_commit(repo, signature, file_factory("CHANGELOG.md", CHANGELOG))
 
-    with pytest.raises(SystemExit) as exc_info:
-        app(
-            [
-                "--tag",
-                "1.0.1",
-                "--diff-url",
-                "https://github.com/owner/repo/compare/{prev}...{tag}",
-            ],
-            result_action="return_value",
-        )
+    app(
+        [
+            "--tag",
+            "1.0.1",
+            "--diff-url",
+            "https://github.com/owner/repo/compare/{prev}...{tag}",
+        ],
+        result_action="return_value",
+    )
 
-    assert exc_info.value.code == 1
     assert capsys.readouterr().err == textwrap.dedent("""\
-    error: Failed to find previous tag of '1.0.1'
+    warning: Failed to find previous tag of '1.0.1'
     caused by: hed.git.TagNotFoundError: 1.0.1
     caused by: KeyError: 'refs/tags/1.0.1'
     """)
 
 
-def test_error_no_previous_tag(
+def test_warning_no_previous_tag(
     repo: pygit2.Repository,
     signature: pygit2.Signature,
     file_factory: FileFactory,

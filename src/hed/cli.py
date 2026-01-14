@@ -209,11 +209,14 @@ def _main(  # noqa: C901, PLR0912
         try:
             previous_tag = find_previous_tag(repo, tag)
         except TagNotFoundError as exc:
-            abort(f"Failed to find previous tag of '{tag}'", exc=exc)
-        if previous_tag is None:
-            print_stderr(
-                f"[bold yellow]warning:[/bold yellow] No previous tag for '{tag}'",
+            print_error(
+                f"Failed to find previous tag of '{tag}'",
+                exc=exc,
+                warning=True,
             )
+        else:
+            if previous_tag is None:
+                print_error(f"No previous tag for '{tag}'", warning=True)
 
     if diff_url is not None and previous_tag is not None:
         try:
@@ -229,15 +232,28 @@ def _main(  # noqa: C901, PLR0912
 def abort(msg: str, *, exc: BaseException | None = None, code: int = 1) -> NoReturn:
     """Print error `msg` to stderr and exit with `code`."""
     assert code != 0, "expected non-zero exit code"
+    print_error(msg, exc=exc, warning=False)
+    sys.exit(code)
 
-    print_stderr(f"[bold red]error:[/bold red] {msg}")
+
+def print_error(
+    msg: str,
+    *,
+    exc: BaseException | None = None,
+    warning: bool = False,
+) -> None:
+    """Print `msg` and `exc` to stderr and exit with `code`."""
+    title = "[bold {color}]{}:[/bold {color}]"
+    color = "yelllow" if warning else "red"
+
+    print_stderr(
+        f"{title.format('warning' if warning else 'error', color=color)} {msg}",
+    )
 
     while exc is not None:
         errmsg = traceback.format_exception_only(type(exc), exc)[0].strip()
-        print_stderr(f"[bold red]caused by:[/bold red] {errmsg}")
+        print_stderr(f"{title.format('caused by', color=color)} {errmsg}")
         exc = exc.__cause__
-
-    sys.exit(code)
 
 
 def print_stdout(msg: str) -> None:
