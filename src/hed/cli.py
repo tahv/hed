@@ -110,6 +110,9 @@ def _meta(  # noqa: D417
     _app(tokens)
 
 
+# TODO(tga): read from stdin
+
+
 @_app.default
 def _main(  # noqa: C901, PLR0912
     *,
@@ -137,9 +140,9 @@ def _main(  # noqa: C901, PLR0912
     diff_url: str | None = None,
     previous_tag: str | None = None,
 ) -> None:
-    """Extract release notes from a markdown changelog file.
+    """Extract release notes from markdown changelog.
 
-    This tool is designed for files that follow
+    This tool is designed for changelog that follow
     "[keep a changelog](https://keepachangelog.com)"
     or "[common changelog](https://common-changelog.org)" format.
 
