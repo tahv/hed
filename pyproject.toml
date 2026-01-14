@@ -1,0 +1,123 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hed"
+dynamic = ["version"]
+description = "Extract release notes from changelog file"
+readme = "README.md"
+authors = [{ name = "Thibaud Gambier" }]
+license = "MIT"
+# license-files = ["LICENSE"]
+requires-python = ">=3.11"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development",
+]
+dependencies = [
+  "cyclopts>=4.4.4",
+  "marko>=2.2.2",
+  "pygit2>=1.18.2",
+  "rich>=14.2.0",
+  "typing-extensions>=4.15.0",
+]
+
+[project.scripts]
+hed = "hed.cli:app"
+
+[project.urls]
+Repository = "https://github.com/tahv/hed"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.13.1",
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+]
+
+[tool.coverage]
+paths.ctx = ["src/hed", "*/src/hed", "*\\src\\hed"]
+run.source_pkgs = ["hed"]
+run.branch = true
+run.omit = ["src/hed/__main__.py"]
+report.show_missing = true
+report.skip_covered = true
+report.exclude_lines = [
+  "# pragma: no cover",
+  "if (False|0|TYPE_CHECKING):",
+  "if __name__ == ['\"]__main__['\"]:",
+]
+
+[tool.hed]
+changelog = "CHANGELOG.md"
+title = "{tag}"
+diff-url = "https://github.com/tahv/hed/compare/{prev}...{tag}"
+capture-start = '^## \[{tag}\]'
+capture-end = '^## '
+
+[tool.hatch]
+version.source = "vcs"
+version.raw-options.local_scheme = "no-local-version"
+build.targets.wheel.packages = ["src/hed"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+files = ["src", "tests"]
+untyped_calls_exclude = "cyclopts"
+
+[tool.ruff]
+src = ["src"]
+include = ["src/**/*.py", "tests/**/*.py", "**/pyproject.toml"]
+lint.pydocstyle.convention = "google"
+lint.flake8-tidy-imports.ban-relative-imports = "all"
+lint.isort.required-imports = ["from __future__ import annotations"]
+lint.select = ["ALL"]
+lint.ignore = [
+  "D100",    # Missing docstring in public module
+  "D104",    # Missing docstring in public package
+  "D107",    # Missing docstring in `__init__`
+  "D105",    # Missing docstring in magic method
+  "FIX002",  # Line contains TODO, consider resolving the issue
+  "PLR0913", # Too many arguments in function definition
+  "S101",    # Use of `assert` detected
+  "TD003",   # Missing issue link for this TODO
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/test_*.py" = [
+  "D103",    # Missing docstring in public function
+]
+
+[tool.towncrier]
+directory = "changelog.d"
+filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
+title_format = "## [{version}](https://github.com/tahv/hed/releases/tag/{version}) - {project_date}"
+issue_format = "[!{issue}](https://github.com/tahv/hed/issues/{issue})"
+type = [
+  # When something public gets removed in a breaking way
+  { name = "Breaking changes", directory = "break" },
+  # New public APIs, new behavior in existing features, non-breaking changes
+  { name = "Enhancements", directory = "feat" },
+  # Undesired behavior that got fixed
+  { name = "Bug fixes", directory = "fix" },
+  # Notable updates to the documentation
+  { name = "Documentation", directory = "doc" },
+  # Internal changes that rewrite/restructure code without changing the API
+  { name = "Other changes", directory = "other" },
+  # Changes that does not affect production code, e.g., modifying `.gitignore`
+  { name = "Miscellaneous changes", directory = "chore" },
+]
+
+[tool.ty]
+
+[tool.typos]
+default.extend-ignore-identifiers-re = ["hed"]
+
+[tool.uv]
+default-groups = ["dev"]
