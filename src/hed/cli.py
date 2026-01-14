@@ -244,7 +244,7 @@ def print_error(
 ) -> None:
     """Print `msg` and `exc` to stderr and exit with `code`."""
     title = "[bold {color}]{}:[/bold {color}]"
-    color = "yelllow" if warning else "red"
+    color = "yellow" if warning else "red"
 
     print_stderr(
         f"{title.format('warning' if warning else 'error', color=color)} {msg}",
