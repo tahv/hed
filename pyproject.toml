@@ -5,11 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "hed"
 dynamic = ["version"]
-description = "Extract release notes from changelog file"
+description = "Extract release notes from markdown changelog"
 readme = "README.md"
 authors = [{ name = "Thibaud Gambier" }]
 license = "MIT"
-# license-files = ["LICENSE"]
 requires-python = ">=3.11"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -33,11 +32,7 @@ hed = "hed.cli:app"
 Repository = "https://github.com/tahv/hed"
 
 [dependency-groups]
-dev = [
-    "coverage>=7.13.1",
-    "mypy>=1.19.1",
-    "pytest>=9.0.2",
-]
+dev = ["coverage>=7.13.1", "mypy>=1.19.1", "pytest>=9.0.2"]
 
 [tool.coverage]
 paths.ctx = ["src/hed", "*/src/hed", "*\\src\\hed"]
@@ -90,7 +85,7 @@ lint.ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/test_*.py" = [
-  "D103",    # Missing docstring in public function
+  "D103", # Missing docstring in public function
 ]
 
 [tool.towncrier]

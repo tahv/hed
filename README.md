@@ -1,13 +1,11 @@
 # Hed
 
-Extract release notes from a markdown changelog file that follow
+Extract release notes from markdown changelog that follow
 "[keep a changelog](https://keepachangelog.com)"
 or "[common changelog](https://common-changelog.org)" format.
 
 Hed, pronounced "head" (`/hɛd/`),
 is journalistic shorthand referring to the "headline" of a news story.
-
-<!-- TODO: link to towncrier -->
 
 ## Installation
 
