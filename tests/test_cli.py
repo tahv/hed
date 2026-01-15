@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import os
 import textwrap
 from os import PathLike
@@ -209,16 +210,30 @@ def test_error_empty_title(
     """)
 
 
-def test_changelog_file_option(
+@pytest.mark.parametrize(
+    "args",
+    [
+        pytest.param(("-",), id="positional-stdin"),
+        pytest.param(("TEST.md",), id="positional-file"),
+        pytest.param(("--changelog", "-"), id="keyword-stdin"),
+        pytest.param(("--changelog", "TEST.md"), id="keyword-file"),
+    ],
+)
+def test_changelog_param(
+    args: tuple[str, ...],
+    monkeypatch: pytest.MonkeyPatch,
     file_factory: FileFactory,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    file_factory("TEST.md", CHANGELOG)
+    if "-" in args:
+        wrapper = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
+        wrapper.write(CHANGELOG)
+        wrapper.seek(0, 0)
+        monkeypatch.setattr("sys.stdin", wrapper)
+    else:
+        file_factory("TEST.md", CHANGELOG)
 
-    app(
-        ["--tag", "1.0.1", "--changelog", "TEST.md"],
-        result_action="return_value",
-    )
+    app(["--tag", "1.0.1", *args], result_action="return_value")
 
     assert capsys.readouterr().out == textwrap.dedent("""\
     # 1.0.1 - 2026-01-10

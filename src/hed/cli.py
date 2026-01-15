@@ -11,6 +11,7 @@ import cyclopts
 import marko
 from cyclopts import validators
 from cyclopts.help import DefaultFormatter, PanelSpec
+from cyclopts.types import StdioPath
 from marko import Markdown
 from marko.md_renderer import MarkdownRenderer
 from rich import get_console
@@ -110,28 +111,24 @@ def _meta(  # noqa: D417
     _app(tokens)
 
 
-# TODO(tga): read from stdin
-
-
 @_app.default
 def _main(  # noqa: C901, PLR0912
+    changelog: Annotated[
+        StdioPath,
+        cyclopts.Parameter(
+            name=("--changelog", "-c"),
+            validator=validators.Path(exists=True, file_okay=True, dir_okay=False),
+        ),
+    ] = StdioPath("CHANGELOG.md"),  # noqa: B008
     *,
     tag: Annotated[
         str | None,
         cyclopts.Parameter(name=("--tag", "-t")),
     ] = None,
-    changelog: Annotated[
-        Path,
-        cyclopts.Parameter(
-            name=("--changelog", "-c"),
-            validator=validators.Path(exists=True, file_okay=True, dir_okay=False),
-        ),
-    ] = Path("CHANGELOG.md"),
     capture_start: Annotated[
         str,
         cyclopts.Parameter(show_default=lambda s: f"'{s}'"),
     ] = r"^## (\[{tag}\]|{tag})",
-    # ] = r"^## {tag}",
     capture_end: Annotated[
         str,
         cyclopts.Parameter(show_default=lambda s: f"'{s}'"),
@@ -147,7 +144,7 @@ def _main(  # noqa: C901, PLR0912
     or "[common changelog](https://common-changelog.org)" format.
 
     Args:
-        changelog: Path to the changelog file.
+        changelog: Path to the changelog file, or `-` for stdin.
         tag: Version to extract from the changelog file.
             If not provided, `hed` will try to find the tag
             associated to the current commit.
