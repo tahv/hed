@@ -92,8 +92,9 @@ lint.ignore = [
 directory = "changelog.d"
 filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
-title_format = "## [{version}](https://github.com/tahv/hed/releases/tag/{version}) - {project_date}"
+title_format = ""
 issue_format = "[!{issue}](https://github.com/tahv/hed/issues/{issue})"
+template = "changelog.d/template.md.jinja"
 type = [
   # When something public gets removed in a breaking way
   { name = "Breaking changes", directory = "break" },
