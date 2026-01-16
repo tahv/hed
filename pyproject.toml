@@ -18,7 +18,7 @@ classifiers = [
   "Topic :: Software Development",
 ]
 dependencies = [
-  "cyclopts>=4.4.4",
+  "cyclopts>=4.5.0",
   "marko>=2.2.2",
   "pygit2>=1.18.2",
   "rich>=14.2.0",
