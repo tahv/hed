@@ -6,6 +6,7 @@ import attrs
 import cyclopts
 from cyclopts import default_name_transform
 from cyclopts.utils import to_tuple_converter
+from typing_extensions import override
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -17,7 +18,8 @@ class TomlConfig(cyclopts.config.Toml):
 
     include: Iterable[str] = attrs.field(default=(), converter=to_tuple_converter)
 
-    def __call__(  # noqa: D102
+    @override
+    def __call__(
         self,
         app: cyclopts.App,
         commands: tuple[str, ...],
