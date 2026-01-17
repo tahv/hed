@@ -117,3 +117,7 @@ default.extend-ignore-identifiers-re = ["hed"]
 
 [tool.uv]
 default-groups = ["dev"]
+cache-keys = [
+  { file = "pyproject.toml" },
+  { git = { commit = true, tags = true } },
+]
