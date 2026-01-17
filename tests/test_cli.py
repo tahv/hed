@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import io
 import os
 import textwrap
@@ -153,6 +154,12 @@ def commit_file(
     parents = [repo.head.target]
 
     return repo.create_commit(ref, signature, signature, message, tree, parents)
+
+
+def test_version(capsys: pytest.CaptureFixture[str]) -> None:
+    expected = importlib.metadata.version("hed")
+    app(["--version"], result_action="return_value")
+    assert capsys.readouterr().out == f"{expected}\n"
 
 
 def test_extract(file_factory: FileFactory, capsys: pytest.CaptureFixture[str]) -> None:

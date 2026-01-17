@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import os
 import re
 import sys
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
 
 
 _app = cyclopts.App(
+    name="hed",
+    version=lambda: importlib.metadata.version("hed"),
     help_formatter=DefaultFormatter(
         panel_spec=PanelSpec(box=MINIMAL),
     ),
