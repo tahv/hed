@@ -217,6 +217,62 @@ def test_error_empty_title(
     """)
 
 
+def test_keep_list_elements_format(
+    file_factory: FileFactory,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    file_factory(
+        "CHANGELOG.md",
+        textwrap.dedent("""\
+        # Changelog
+
+        ## 1.0.1 - 2026-01-10
+
+        - This is the first list item.
+
+            I need to add another paragraph below the first list item.
+
+        - Here's the second list item.
+
+            Keep tables indented below list item.
+
+            | foo | bar |
+            | --- | --- |
+
+        - And here's the third list item.
+        - This is the last item.
+
+        This is a paragraph not related to the list.
+
+        - This is a new list.
+
+        """),
+    )
+
+    app(["--tag", "1.0.1"], result_action="return_value")
+
+    assert capsys.readouterr().out == textwrap.dedent("""\
+    # 1.0.1 - 2026-01-10
+
+    - This is the first list item.
+
+        I need to add another paragraph below the first list item.
+    - Here's the second list item.
+
+        Keep tables indented below list item.
+
+        | foo | bar |
+        | --- | --- |
+    - And here's the third list item.
+    - This is the last item.
+
+    This is a paragraph not related to the list.
+
+    - This is a new list.
+
+    """)
+
+
 @pytest.mark.parametrize(
     "args",
     [
