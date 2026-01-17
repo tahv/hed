@@ -13,7 +13,6 @@ import marko
 from cyclopts import validators
 from cyclopts.help import DefaultFormatter, PanelSpec
 from cyclopts.types import StdioPath
-from marko import Markdown
 from marko.md_renderer import MarkdownRenderer
 from rich import get_console
 from rich.box import MINIMAL
@@ -26,6 +25,7 @@ from hed.git import (
     get_tags_for_commit,
     repo_from_path,
 )
+from hed.markdown import GithubTableExtension
 from hed.operations import (
     PatternNotFoundError,
     change_title,
@@ -189,7 +189,10 @@ def _main(  # noqa: C901, PLR0912
         except PatternNotFoundError as exc:
             abort(f"No match for tag '{tag}'", exc=exc, code=1)
 
-    markdown = Markdown(renderer=MarkdownRenderer)
+    markdown = marko.Markdown(
+        extensions=[GithubTableExtension],
+        renderer=MarkdownRenderer,
+    )
     document = markdown.parse(text)
 
     normalize_headings(document)
