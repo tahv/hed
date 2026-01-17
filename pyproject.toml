@@ -112,8 +112,9 @@ type = [
 
 [tool.ty]
 
-[tool.typos]
-default.extend-ignore-identifiers-re = ["hed"]
+[tool.typos.default.extend-words]
+hed = "hed"
+Hed = "Hed"
 
 [tool.uv]
 default-groups = ["dev"]
