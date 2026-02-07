@@ -36,6 +36,7 @@ from hed.operations import (
 _app = cyclopts.App(
     name="hed",
     version=lambda: importlib.metadata.version("hed"),
+    version_flags=["--version", "-V"],
     help_formatter=DefaultFormatter(
         panel_spec=PanelSpec(box=MINIMAL),
     ),
