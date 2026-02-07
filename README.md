@@ -46,6 +46,7 @@ changelog = "CHANGELOG.md"
 capture-end = '^## {tag}'
 capture-start = '^## '
 diff-url = "https://github.com/owner/repo/compare/{prev}...{tag}"
+softbreak = true
 title = "{tag}"
 ```
 
