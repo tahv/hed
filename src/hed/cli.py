@@ -6,15 +6,14 @@ import re
 import sys
 import traceback
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, NoReturn, cast
+from typing import Annotated, NoReturn
 
 import cyclopts
-import marko
 from cyclopts import validators
 from cyclopts.help import DefaultFormatter, PanelSpec
 from cyclopts.types import StdioPath
-from marko import Markdown
-from marko.md_renderer import MarkdownRenderer
+from mistletoe.block_token import Document
+from mistletoe.markdown_renderer import MarkdownRenderer
 from rich import get_console
 from rich.box import MINIMAL
 
@@ -28,14 +27,11 @@ from hed.git import (
 )
 from hed.operations import (
     PatternNotFoundError,
-    change_title,
     extract_release,
     normalize_headings,
+    remove_softbreaks,
+    update_title,
 )
-
-if TYPE_CHECKING:
-    from marko.element import Element
-
 
 _app = cyclopts.App(
     name="hed",
@@ -105,6 +101,7 @@ def _meta(  # noqa: D417
                 "capture-start",
                 "changelog",
                 "diff-url",
+                "softbreak",
                 "title",
             ),
             search_parents=False,
@@ -139,12 +136,13 @@ def _main(  # noqa: C901, PLR0912
     title: str | None = None,
     diff_url: str | None = None,
     previous_tag: str | None = None,
+    softbreak: bool = True,
 ) -> None:
     """Extract release notes from markdown changelog.
 
     This tool is designed for changelog that follow
-    "[keep a changelog](https://keepachangelog.com)"
-    or "[common changelog](https://common-changelog.org)" format.
+    [keep a changelog](https://keepachangelog.com)
+    or [common changelog](https://common-changelog.org) format.
 
     Args:
         changelog: Path to the changelog file, or `-` for stdin.
@@ -167,6 +165,9 @@ def _main(  # noqa: C901, PLR0912
         title: Override h1 title.
             Accepts the `{tag}` placeholder,
             which will be replaced with the value of `--tag`.
+        softbreak: Whether to remove or keep soft line breaks.
+            This is useful for GitHub release notes,
+            where soft line breaks are not supported.
     """
     if tag is None:
         repo = repo_from_path(Path.cwd())
@@ -180,30 +181,7 @@ def _main(  # noqa: C901, PLR0912
             )
         tag = tags[0]
 
-    start_pattern = re.compile(capture_start.format(tag=re.escape(tag)))
-    end_pattern = re.compile(capture_end)
-
-    with changelog.open("rt") as f:
-        try:
-            text = extract_release(f, start_pattern, end_pattern)
-        except PatternNotFoundError as exc:
-            abort(f"No match for tag '{tag}'", exc=exc, code=1)
-
-    markdown = Markdown(renderer=MarkdownRenderer)
-    document = markdown.parse(text)
-
-    normalize_headings(document)
-
-    if title is not None:
-        try:
-            change_title(document, title.format(tag=tag))
-        except AssertionError:  # pragma: no cover
-            raise
-        except Exception as exc:  # noqa: BLE001
-            abort("Failed to change title", exc=exc, code=1)
-        except:  # pragma: no cover
-            raise
-
+    # Resolve previous tag
     if diff_url is not None and previous_tag is None:
         repo = repo_from_path(Path())
         try:
@@ -218,15 +196,44 @@ def _main(  # noqa: C901, PLR0912
             if previous_tag is None:
                 print_error(f"No previous tag for '{tag}'", warning=True)
 
+    # Load changelog & extract release text
+    start_pattern = re.compile(capture_start.format(tag=re.escape(tag)))
+    end_pattern = re.compile(capture_end)
+    with changelog.open("rt") as f:
+        try:
+            text = "".join(extract_release(f, start_pattern, end_pattern))
+        except PatternNotFoundError as exc:
+            abort(f"No match for tag '{tag}'", exc=exc, code=1)
+
+    # Append diff url
     if diff_url is not None and previous_tag is not None:
         try:
             url = diff_url.format(tag=tag, prev=previous_tag)
         except LookupError as exc:
             abort(f"Failed to format string: {diff_url!r}", exc=exc)
-        text = f"\n**Full Changelog:** [{previous_tag}...{tag}]({url})"
-        cast("list[Element]", document.children).extend(marko.parse(text).children)
 
-    print_stdout(markdown.render(document))
+        text += f"\n**Full Changelog:** [{previous_tag}...{tag}]({url})"
+
+    with MarkdownRenderer(normalize_whitespace=True) as renderer:
+        document = Document(text.strip())
+
+        normalize_headings(document)
+
+        # Update title
+        if title is not None:
+            try:
+                update_title(document, title.format(tag=tag))
+            except AssertionError:  # pragma: no cover
+                raise
+            except Exception as exc:  # noqa: BLE001
+                abort("Failed to change title", exc=exc, code=1)
+            except:  # pragma: no cover
+                raise
+
+        if not softbreak:
+            remove_softbreaks(document)
+
+        print_stdout(renderer.render(document).strip())
 
 
 def abort(msg: str, *, exc: BaseException | None = None, code: int = 1) -> NoReturn:

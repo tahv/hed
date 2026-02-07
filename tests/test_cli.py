@@ -30,7 +30,6 @@ CHANGELOG = """\
 - Removed a deprecated feature. ([#1](https://github.com/owner/repo/pull/1))
 """
 
-
 CHANGELOG_LINK_TITLE = """\
 # Changelog
 
@@ -173,7 +172,6 @@ def test_extract(file_factory: FileFactory, capsys: pytest.CaptureFixture[str]) 
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -194,7 +192,6 @@ def test_change_title(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -214,6 +211,36 @@ def test_error_empty_title(
     assert capsys.readouterr().err == textwrap.dedent("""\
     error: Failed to change title
     caused by: ValueError: Empty title
+    """)
+
+
+def test_error_many_headings(
+    file_factory: FileFactory,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    file_factory(
+        "CHANGELOG.md",
+        textwrap.dedent("""\
+        # Changelog
+
+        ## 1.0.1 - 2026-01-10
+
+        ## Bug fixes
+
+        - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
+        """),
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        app(
+            ["--tag", "1.0.1", "--title", "{tag}", "--capture-end", "$a"],
+            result_action="return_value",
+        )
+
+    assert exc_info.value.code == 1
+    assert capsys.readouterr().err == textwrap.dedent("""\
+    error: Failed to change title
+    caused by: RuntimeError: Expected exactly one h1 heading, found 2
     """)
 
 
@@ -248,7 +275,6 @@ def test_changelog_param(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -278,7 +304,6 @@ def test_diff_url_and_previous_tag(
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
 
     **Full Changelog:** [1.0.0...1.0.1](https://github.com/owner/repo/compare/1.0.0...1.0.1)
-
     """)
 
 
@@ -318,7 +343,6 @@ def test_change_working_directory(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -344,7 +368,6 @@ def test_default_capture_start(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -365,7 +388,6 @@ def test_extract_capture_start_end(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -386,7 +408,6 @@ def test_extract_capture_eof(
     ## Breaking changes
 
     - Removed a deprecated feature. ([#1](https://github.com/owner/repo/pull/1))
-
     """)
 
 
@@ -435,7 +456,6 @@ def test_read_default_config_file(
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
 
     **Full Changelog:** [1.0.0...1.0.1](https://github.com/owner/repo/compare/1.0.0...1.0.1)
-
     """)
 
 
@@ -460,7 +480,6 @@ def test_read_config_file_option(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -492,7 +511,6 @@ def test_prefer_hed_toml(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -517,7 +535,6 @@ def test_tag_from_head(
     ## Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
-
     """)
 
 
@@ -551,7 +568,36 @@ def test_find_previous_tag(
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
 
     **Full Changelog:** [1.0.0...1.0.1](https://github.com/owner/repo/compare/1.0.0...1.0.1)
+    """)
 
+
+def test_no_softbreak(
+    file_factory: FileFactory,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    file_factory(
+        "CHANGELOG.md",
+        textwrap.dedent("""\
+        # Changelog
+
+        ## 1.0.0 - 2026-01-9
+
+        ### Breaking changes
+
+        - Removed a deprecated feature,
+          with softbreak.
+          ([#1](https://github.com/owner/repo/pull/1))
+        """),
+    )
+
+    app(["--tag", "1.0.0", "--no-softbreak"], result_action="return_value")
+
+    assert capsys.readouterr().out == textwrap.dedent("""\
+    # 1.0.0 - 2026-01-9
+
+    ## Breaking changes
+
+    - Removed a deprecated feature, with softbreak. ([#1](https://github.com/owner/repo/pull/1))
     """)
 
 

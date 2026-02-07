@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
   "cyclopts>=4.5.0",
-  "marko>=2.2.2",
+  "mistletoe>=1.5.1",
   "pygit2>=1.18.2",
   "rich>=14.2.0",
   "typing-extensions>=4.15.0",
@@ -53,6 +53,7 @@ title = "{tag}"
 diff-url = "https://github.com/tahv/hed/compare/{prev}...{tag}"
 capture-start = '^## \[{tag}\]'
 capture-end = '^## '
+softbreak = false
 
 [tool.hatch]
 version.source = "vcs"
@@ -63,7 +64,7 @@ build.targets.wheel.packages = ["src/hed"]
 strict = true
 mypy_path = "src"
 files = ["src", "tests"]
-untyped_calls_exclude = "cyclopts"
+untyped_calls_exclude = ["cyclopts", "mistletoe"]
 
 [tool.ruff]
 src = ["src"]
