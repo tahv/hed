@@ -10,6 +10,10 @@ list:
 sync:
     uv sync
 
+# Run project command
+hed *args:
+    uv run -- hed {{ args }}
+
 # Open project in neovim
 nvim *args:
     uv run -- nvim {{ args }}
@@ -17,6 +21,10 @@ nvim *args:
 # Build Python wheel and sdist
 build:
     uv build --no-sources
+
+# Run mypy type checker
+mypy:
+    uv run -m mypy
 
 # Create a news fragment
 news filename="":
