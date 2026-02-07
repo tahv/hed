@@ -11,6 +11,29 @@ in the repo.
 
 <!-- towncrier release notes start -->
 
+## [1.2.0](https://github.com/tahv/hed/releases/tag/1.2.0) - 2026-02-07
+
+### Enhancements
+
+- [!12](https://github.com/tahv/hed/issues/12):
+  Add flag `--softbreak/--no-softbreak` to format
+  [softbreaks](https://github.github.com/gfm/#softbreak).
+  This is useful for GitHub release notes, where soft line breaks are not supported.
+- [!12](https://github.com/tahv/hed/issues/12):
+  Support [GitHub style tables](https://github.github.com/gfm/#tables-extension-).
+- [!13](https://github.com/tahv/hed/issues/13):
+  Add `-V` flag, alias for `--version`.
+
+### Bug fixes
+
+- [!10](https://github.com/tahv/hed/issues/10):
+  Fix version returned by `hed --version`.
+
+### Other changes
+
+- [!12](https://github.com/tahv/hed/issues/12):
+  Use [mistletoe](https://github.com/miyuchina/mistletoe) to parse markdown.
+
 ## [1.1.0](https://github.com/tahv/hed/releases/tag/1.1.0) - 2026-01-16
 
 ### Enhancements
