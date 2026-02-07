@@ -30,7 +30,7 @@ def find_previous_tag(repo: pygit2.Repository, tag_name: str) -> str | None:
     walker.simplify_first_parent()
 
     for commit in walker:
-        tag = commits_tag.get(commit.id, None)
+        tag = commits_tag.get(commit.id)
         if tag:
             return tag
 

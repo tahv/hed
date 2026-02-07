@@ -1,8 +1,8 @@
 # Hed
 
 Extract release notes from markdown changelog that follow
-"[keep a changelog](https://keepachangelog.com)"
-or "[common changelog](https://common-changelog.org)" format.
+[keep a changelog](https://keepachangelog.com)
+or [common changelog](https://common-changelog.org) format.
 
 Hed, pronounced "head" (`/hɛd/`),
 is journalistic shorthand referring to the "headline" of a news story.

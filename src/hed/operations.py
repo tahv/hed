@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 from itertools import dropwhile, takewhile
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING, TextIO, TypeGuard
 
-from marko.block import Document, Heading
-from marko.inline import RawText
+from mistletoe.block_token import BlockToken, Heading
+from mistletoe.span_token import LineBreak, RawText
 
 if TYPE_CHECKING:
     import re
+    from collections.abc import Iterable
+
+    from mistletoe.token import Token
 
 
 class PatternNotFoundError(Exception):
@@ -22,23 +25,35 @@ def extract_release(
     io: TextIO,
     start_pattern: re.Pattern[str],
     end_pattern: re.Pattern[str],
-) -> str:
+) -> Iterable[str]:
     """Iter `io` lines and extract text between `start_pattern` and `end_pattern` lines.
 
     The `start_pattern` line is included but `end_pattern` line is not.
+
+    Raises:
+        PatternNotFoundError: The `start_pattern` was not found.
+            Occurs before the iteration begin.
     """
-    lines: list[str] = []
     capture = dropwhile(lambda x: not start_pattern.match(x), io)
     try:
-        lines.append(next(capture))
+        yield next(capture)
     except StopIteration:
         raise PatternNotFoundError(start_pattern) from None
-    lines.extend(takewhile(lambda x: not end_pattern.match(x), capture))
-    return "".join(lines).strip()
+    yield from takewhile(lambda x: not end_pattern.match(x), capture)
 
 
-def change_title(document: Document, title: str) -> None:
-    """Update `document` h1 text to `title`."""
+def normalize_headings(token: BlockToken) -> None:
+    """Normalize headings in `token` tree to start at h1."""
+    headings: list[Heading] = [
+        t for t in iter_token_tree(token) if isinstance(t, Heading)
+    ]
+    offset = min((h.level for h in headings), default=1) - 1
+    for h in headings:
+        h.level -= offset
+
+
+def update_title(token: BlockToken, title: str) -> None:
+    """Find the h1 in `token` tree and change its text to `title`."""
     if not title:
         msg = "Empty title"
         raise ValueError(msg)
@@ -47,27 +62,37 @@ def change_title(document: Document, title: str) -> None:
         msg = "Title must fit on one line"
         raise ValueError(msg)
 
-    headings: list[Heading] = [
-        el for el in document.children if isinstance(el, Heading) and el.level == 1
-    ]
+    def is_h1(token: Token) -> TypeGuard[Heading]:
+        return isinstance(token, Heading) and token.level == 1
 
-    assert headings, "expected document to have at least one main heading"
+    headings = list[Heading](filter(is_h1, iter_token_tree(token)))
 
-    if len(headings) > 1:
-        msg = f"Expected exactly 1 main heading, got {len(headings)}"
+    if len(headings) != 1:
+        msg = f"Expected exactly one h1 heading, found {len(headings)}"
         raise RuntimeError(msg)
 
-    headings[0].children = [RawText(title)]
+    heading = headings[0]
+    heading.children = (RawText(title),)
 
 
-def normalize_headings(document: Document) -> None:
-    """Normalize `document` headings to start a h1."""
-    lowest_level = min(
-        (el.level for el in document.children if isinstance(el, Heading)),
-        default=1,
-    )
-    offset = lowest_level - 1
+def iter_token_tree(token: Token) -> Iterable[Token]:
+    """Iter `token` children recursively."""
+    yield token
+    for child in token.children or []:
+        yield from iter_token_tree(child)
 
-    for el in document.children:
-        if isinstance(el, Heading):
-            el.level -= offset
+
+def remove_softbreaks(token: BlockToken) -> None:
+    """Remove soft `LineBreak` from `token` hierarchy.
+
+    See: https://github.com/orgs/community/discussions/10981
+    """
+
+    def is_softbreak(token: Token) -> TypeGuard[LineBreak]:
+        return isinstance(token, LineBreak) and token.soft
+
+    for token_ in iter_token_tree(token):
+        if token_.children:
+            token_.children = tuple(
+                t if not is_softbreak(t) else RawText(" ") for t in token_.children
+            )
