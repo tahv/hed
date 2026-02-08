@@ -1,15 +1,16 @@
+# tombi: format.rules.table-keys-order.disabled = true
+
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatch-vcs", "hatchling"]
 build-backend = "hatchling.build"
 
 [project]
 name = "hed"
-dynamic = ["version"]
 description = "Extract release notes from markdown changelog"
 readme = "README.md"
-authors = [{ name = "Thibaud Gambier" }]
-license = "MIT"
 requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Thibaud Gambier" }]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -24,6 +25,7 @@ dependencies = [
   "rich>=14.2.0",
   "typing-extensions>=4.15.0",
 ]
+dynamic = ["version"]
 
 [project.scripts]
 hed = "hed.cli:app"
@@ -52,7 +54,7 @@ changelog = "CHANGELOG.md"
 title = "{tag}"
 diff-url = "https://github.com/tahv/hed/compare/{prev}...{tag}"
 capture-start = '^## \[{tag}\]'
-capture-end = '^## '
+capture-end = "^## "
 softbreak = false
 
 [tool.hatch]
@@ -74,19 +76,19 @@ lint.flake8-tidy-imports.ban-relative-imports = "all"
 lint.isort.required-imports = ["from __future__ import annotations"]
 lint.select = ["ALL"]
 lint.ignore = [
-  "D100",    # Missing docstring in public module
-  "D104",    # Missing docstring in public package
-  "D107",    # Missing docstring in `__init__`
-  "D105",    # Missing docstring in magic method
+  "D100",  # Missing docstring in public module
+  "D104",  # Missing docstring in public package
+  "D107",  # Missing docstring in `__init__`
+  "D105",  # Missing docstring in magic method
   "FIX002",  # Line contains TODO, consider resolving the issue
-  "PLR0913", # Too many arguments in function definition
-  "S101",    # Use of `assert` detected
-  "TD003",   # Missing issue link for this TODO
+  "PLR0913",  # Too many arguments in function definition
+  "S101",  # Use of `assert` detected
+  "TD003",  # Missing issue link for this TODO
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/test_*.py" = [
-  "D103", # Missing docstring in public function
+  "D103",  # Missing docstring in public function
 ]
 
 [tool.towncrier]
