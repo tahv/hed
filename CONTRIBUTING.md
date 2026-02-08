@@ -54,7 +54,8 @@ pip install --editable . --group dev
 We use [towncrier](https://towncrier.readthedocs.io/)
 to manage our [CHANGELOG.md](./CHANGELOG.md).
 
-To create a news fragment, run the following command and follow the instructions:
+To create a news fragment, run the following command
+and follow the instructions:
 
 ```console
 towncrier create --no-edit
@@ -66,8 +67,8 @@ Or use our `just` recipe:
 just news
 ```
 
-Alternatively,
-you don't need to install towncrier, you just have to abide by a few simple rules:
+Alternatively, you don't need to install towncrier,
+you just have to abide by a few simple rules:
 
 For each merge request, add a new file into the `changelog.d` directory
 with a filename adhering to the schema:
