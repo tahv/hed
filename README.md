@@ -31,7 +31,8 @@ to the extracted release notes:
 
 - If `--title` is provided, update the h1.
 - If `--diff-url` is provided, adds a link to compare between tags at the end.
-  If `--previous-tag` is also provided, this tag is used to build the comparison link,
+  If `--previous-tag` is also provided,
+  this tag is used to build the comparison link,
   otherwise, `hed` will try to find the closest reachable tag from `--tag`.
 
 ## Configuration
@@ -125,10 +126,7 @@ gitlab-release:
     - apk update && apk add curl
     - curl -LsSf https://astral.sh/uv/install.sh | sh
     - source $HOME/.local/bin/env
-    - uvx hed
-      --tag $CI_COMMIT_TAG
-      --diff-url "$CI_PROJECT_URL/-/compare/{prev}...{tag}"
-      > RELEASE_NOTES.md
+    - uvx hed --tag $CI_COMMIT_TAG > RELEASE_NOTES.md
   release:
     tag_name: '$CI_COMMIT_TAG'
     name: '$CI_COMMIT_TAG'
@@ -150,11 +148,7 @@ jobs:
       contents: write
     steps:
       - uses: astral-sh/setup-uv@v7
-      - run: >
-          uvx hed
-          --tag "${{ github.ref_name }}"
-          --diff-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/{prev}...{tag}"
-          > RELEASE_NOTES.md
+      - run: uvx hed --tag "${{ github.ref_name }}" > RELEASE_NOTES.md
       - uses: softprops/action-gh-release@v2
         with:
           body_path: 'RELEASE_NOTES.md'
