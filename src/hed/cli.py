@@ -3,10 +3,8 @@ from __future__ import annotations
 import importlib.metadata
 import os
 import re
-import sys
-import traceback
 from pathlib import Path
-from typing import Annotated, NoReturn
+from typing import Annotated
 
 import cyclopts
 from cyclopts import validators
@@ -14,10 +12,10 @@ from cyclopts.help import DefaultFormatter, PanelSpec
 from cyclopts.types import StdioPath
 from mistletoe.block_token import Document
 from mistletoe.markdown_renderer import MarkdownRenderer
-from rich import get_console
 from rich.box import MINIMAL
 
 from hed.config import TomlConfig
+from hed.console import abort, print_err, stdout_console
 from hed.git import (
     TagNotFoundError,
     find_previous_tag,
@@ -75,7 +73,6 @@ def _meta(  # noqa: D417
     config_file: Annotated[
         Path | None,
         cyclopts.Parameter(
-            name="--config-file",
             converter=_path_converter,
             validator=validators.Path(exists=True, file_okay=True, dir_okay=False),
         ),
@@ -188,14 +185,14 @@ def _main(  # noqa: C901, PLR0912
         try:
             previous_tag = find_previous_tag(repo, tag)
         except TagNotFoundError as exc:
-            print_error(
+            print_err(
                 f"Failed to find previous tag of '{tag}'",
                 exc=exc,
                 warning=True,
             )
         else:
             if previous_tag is None:
-                print_error(f"No previous tag for '{tag}'", warning=True)
+                print_err(f"No previous tag for '{tag}'", warning=True)
 
     # Load changelog & extract release text
     start_pattern = re.compile(capture_start.format(tag=re.escape(tag)))
@@ -234,45 +231,9 @@ def _main(  # noqa: C901, PLR0912
         if not softbreak:
             remove_softbreaks(document)
 
-        print_stdout(renderer.render(document).strip())
-
-
-def abort(msg: str, *, exc: BaseException | None = None, code: int = 1) -> NoReturn:
-    """Print error `msg` to stderr and exit with `code`."""
-    assert code != 0, "expected non-zero exit code"
-    print_error(msg, exc=exc, warning=False)
-    sys.exit(code)
-
-
-def print_error(
-    msg: str,
-    *,
-    exc: BaseException | None = None,
-    warning: bool = False,
-) -> None:
-    """Print `msg` and `exc` to stderr and exit with `code`."""
-    title = "[bold {color}]{}:[/bold {color}]"
-    color = "yellow" if warning else "red"
-
-    print_stderr(
-        f"{title.format('warning' if warning else 'error', color=color)} {msg}",
-    )
-
-    while exc is not None:
-        errmsg = traceback.format_exception_only(type(exc), exc)[0].strip()
-        print_stderr(f"{title.format('caused by', color=color)} {errmsg}")
-        exc = exc.__cause__
-
-
-def print_stdout(msg: str) -> None:
-    """Print `msg` as is to stdout."""
-    console = get_console()
-    console.stderr = False
-    console.print(msg, highlight=False, soft_wrap=True, markup=False)
-
-
-def print_stderr(msg: str) -> None:
-    """Print `msg` as is to stderr."""
-    console = get_console()
-    console.stderr = True
-    console.print(msg, highlight=False, soft_wrap=True)
+        stdout_console().print(
+            renderer.render(document).strip(),
+            highlight=False,
+            soft_wrap=True,
+            markup=False,
+        )
