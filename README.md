@@ -44,8 +44,8 @@ See <https://toml.io/> for how to write TOML.
 ```toml
 [tool.hed]
 changelog = "CHANGELOG.md"
-capture-end = '^## {tag}'
-capture-start = '^## '
+capture-start = '^## (\[{tag}\]|{tag})'
+capture-end = '^## '
 diff-url = "https://github.com/owner/repo/compare/{prev}...{tag}"
 softbreak = true
 title = "{tag}"
