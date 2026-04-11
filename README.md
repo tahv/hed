@@ -23,8 +23,8 @@ uv tool install hed
 
 1. Extract `--changelog` lines between `--capture-start` (included)
    and `--capture-end` (not included).
-2. Normalize the extracted headings so the topmost heading becomes h1,
-   e.g., `## Title` becomes `# Title`.
+2. Normalize the extracted headings so the topmost heading level
+   conform to `--top-heading`, e.g., `## Title` becomes `# Title`.
 
 Depending on how it was configured, `hed` can apply some transformations
 to the extracted release notes:
@@ -49,6 +49,7 @@ capture-end = '^## '
 diff-url = "https://github.com/owner/repo/compare/{prev}...{tag}"
 softbreak = true
 title = "{tag}"
+top-heading = 1
 ```
 
 ## Usage
