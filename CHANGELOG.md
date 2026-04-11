@@ -11,6 +11,15 @@ in the repo.
 
 <!-- towncrier release notes start -->
 
+## [1.3.0](https://github.com/tahv/hed/releases/tag/1.3.0) - 2026-04-11
+
+### Enhancements
+
+- [!15](https://github.com/tahv/hed/issues/15):
+  Add `--top-heading` option to offset level of top heading,
+  must be greater than 0.
+  For example, `1 = '#'`, `2 = '##'`, etc.
+
 ## [1.2.0](https://github.com/tahv/hed/releases/tag/1.2.0) - 2026-02-07
 
 ### Enhancements
