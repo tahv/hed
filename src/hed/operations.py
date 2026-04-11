@@ -42,12 +42,17 @@ def extract_release(
     yield from takewhile(lambda x: not end_pattern.match(x), capture)
 
 
-def normalize_headings(token: BlockToken) -> None:
-    """Normalize headings in `token` tree to start at h1."""
+def normalize_headings(token: BlockToken, top_level: int = 1) -> None:
+    """Normalize headings in `token` tree to start at `top_level`."""
+    if top_level < 1:
+        msg = f"Top heading level must be greater than 0, found {top_level}"
+        raise ValueError(msg)
+
     headings: list[Heading] = [
         t for t in iter_token_tree(token) if isinstance(t, Heading)
     ]
-    offset = min((h.level for h in headings), default=1) - 1
+
+    offset = min((h.level for h in headings), default=1) - top_level
     for h in headings:
         h.level -= offset
 

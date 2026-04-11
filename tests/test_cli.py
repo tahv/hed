@@ -214,6 +214,45 @@ def test_error_empty_title(
     """)
 
 
+def test_top_heading(
+    file_factory: FileFactory,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    file_factory("CHANGELOG.md", CHANGELOG)
+
+    app(
+        ["--tag", "1.0.1", "--title", "Release Notes", "--top-heading", "3"],
+        result_action="return_value",
+    )
+
+    assert capsys.readouterr().out == textwrap.dedent("""\
+    ### Release Notes
+
+    #### Bug fixes
+
+    - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
+    """)
+
+
+def test_error_invalid_top_heading(
+    file_factory: FileFactory,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    file_factory("CHANGELOG.md", CHANGELOG)
+
+    with pytest.raises(SystemExit) as exc_info:
+        app(
+            ["--tag", "1.0.1", "--top-heading", "0"],
+            result_action="return_value",
+        )
+
+    assert exc_info.value.code == 1
+    assert capsys.readouterr().err == textwrap.dedent("""\
+    error: Failed to normalize heading levels
+    caused by: ValueError: Top heading level must be greater than 0, found 0
+    """)
+
+
 def test_error_many_headings(
     file_factory: FileFactory,
     capsys: pytest.CaptureFixture[str],
@@ -443,15 +482,16 @@ def test_read_default_config_file(
         changelog = "FOO.md"
         diff-url = "https://github.com/owner/repo/compare/{prev}...{tag}"
         title = "Test"
+        top-heading = 3
         """),
     )
 
     app(["--tag", "1.0.1", "--previous-tag", "1.0.0"], result_action="return_value")
 
     assert capsys.readouterr().out == textwrap.dedent("""\
-    # Test
+    ### Test
 
-    ## Bug fixes
+    #### Bug fixes
 
     - Fixed a thing! ([#2](https://github.com/owner/repo/pull/2))
 

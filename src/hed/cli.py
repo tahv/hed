@@ -101,6 +101,7 @@ def _meta(  # noqa: D417
                 "diff-url",
                 "softbreak",
                 "title",
+                "top-heading",
             ),
             search_parents=False,
         ),
@@ -134,6 +135,7 @@ def _main(  # noqa: C901, PLR0912
     title: str | None = None,
     diff_url: str | None = None,
     previous_tag: str | None = None,
+    top_heading: int = 1,
     softbreak: bool = True,
 ) -> None:
     """Extract release notes from markdown changelog.
@@ -160,12 +162,14 @@ def _main(  # noqa: C901, PLR0912
         previous_tag: Closest reachable tag from `--tag`.
             If not provided,
             `hed` will try to find the closest reachable tag from `--tag`.
-        title: Override h1 title.
+        title: Override `--top-heading` title.
             Accepts the `{tag}` placeholder,
             which will be replaced with the value of `--tag`.
         softbreak: Whether to remove or keep soft line breaks.
             This is useful for GitHub release notes,
             where soft line breaks are not supported.
+        top_heading: Level of top heading, must be greater than 0.
+            For example, `1 = '#'`, `2 = '##'`, etc...
     """
     if tag is None:
         repo = repo_from_path(Path.cwd())
@@ -215,10 +219,9 @@ def _main(  # noqa: C901, PLR0912
     with MarkdownRenderer(normalize_whitespace=True) as renderer:
         document = Document(text.strip())
 
-        normalize_headings(document)
-
         # Update title
         if title is not None:
+            normalize_headings(document, top_level=1)
             try:
                 update_title(document, title.format(tag=tag))
             except AssertionError:  # pragma: no cover
@@ -230,6 +233,12 @@ def _main(  # noqa: C901, PLR0912
 
         if not softbreak:
             remove_softbreaks(document)
+
+
+        try:
+            normalize_headings(document, top_level=top_heading)
+        except ValueError as exc:
+            abort("Failed to normalize heading levels", exc=exc, code=1)
 
         stdout_console().print(
             renderer.render(document).strip(),
