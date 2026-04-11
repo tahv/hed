@@ -111,7 +111,7 @@ def _meta(  # noqa: D417
 
 
 @_app.default
-def _main(  # noqa: C901, PLR0912
+def _main(  # noqa: C901, PLR0912, PLR0915
     changelog: Annotated[
         StdioPath,
         cyclopts.Parameter(
@@ -233,7 +233,6 @@ def _main(  # noqa: C901, PLR0912
 
         if not softbreak:
             remove_softbreaks(document)
-
 
         try:
             normalize_headings(document, top_level=top_heading)
