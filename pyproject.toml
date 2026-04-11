@@ -51,7 +51,8 @@ report.exclude_lines = [
 
 [tool.hed]
 changelog = "CHANGELOG.md"
-title = "{tag}"
+title = "Release Notes"
+top-heading = 2
 diff-url = "https://github.com/tahv/hed/compare/{prev}...{tag}"
 capture-start = '^## \[{tag}\]'
 capture-end = "^## "
