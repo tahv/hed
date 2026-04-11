@@ -81,7 +81,6 @@ $ hed --tag 1.0.1
 ## Bug fixes
 
 - Fixed a thing! (#1235)
-
 ```
 
 Change the title:
@@ -93,7 +92,6 @@ $ hed --tag 1.0.1 --title "{tag} Release Notes"
 ## Bug fixes
 
 - Fixed a thing! (#1235)
-
 ```
 
 Add a link to compare between releases:
@@ -107,7 +105,6 @@ $ hed --tag 1.0.1 --previous-tag 1.0.0 --diff-url "https://github.com/owner/repo
 - Fixed a thing! (#1235)
 
 **Full Changelog:** [1.0.0...1.0.1](https://github.com/owner/repo/compare/1.0.0...1.0.1)
-
 ```
 
 ## CI Integration
