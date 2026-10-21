@@ -152,6 +152,35 @@ jobs:
           body_path: 'RELEASE_NOTES.md'
 ```
 
+### Woodpecker
+
+Create a release on a forgejo instance (e.g., on Codeberg) using
+[woodpeckerci/plugin-release](https://woodpecker-ci.org/plugins/release).
+
+> [!IMPORTANT]
+> Set the `api_key` setting with your API access token.
+
+```yaml
+when:
+  - even: tag
+
+steps:
+  notes:
+    name: Generate Release Notes
+    image: ghcr.io/astral-sh/uv:python3.14-trixie
+    commands:
+      - uvx hed --tag "${CI_COMMIT_TAG}" > RELEASE_NOTES.md
+
+  release:
+    name: Create Codeberg Release
+    image: woodpeckerci/plugin-release
+    settings:
+      title: '${CI_COMMIT_TAG}'
+      note: RELEASE_NOTES.md
+      api_key:
+        from_secret: ACCESS_TOKEN
+```
+
 ## Contributing
 
 For guidance on setting up a development environment and contributing,
