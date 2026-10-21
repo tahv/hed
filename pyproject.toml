@@ -14,11 +14,11 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "cyclopts>=4.5.0",
-  "mistletoe>=1.5.1",
-  "pygit2>=1.18.2",
-  "rich>=14.2.0",
-  "typing-extensions>=4.15.0",
+  "cyclopts>=5.2.0",
+  "mistletoe>=1.6.0",
+  "pygit2>=1.20.1",
+  "rich>=15.0.0",
+  "typing-extensions>=4.16.0",
 ]
 dynamic = ["version"]
 
@@ -34,11 +34,11 @@ dev = [
   { include-group = "types" },
 ]
 test = [
-  "coverage>=7.13.1",
-  "pytest>=9.0.2",
+  "coverage>=7.16.2",
+  "pytest>=9.1.1",
 ]
 types = [
-  "mypy>=1.19.1",
+  "mypy>=2.4.0",
 ]
 
 [build-system]
