@@ -112,6 +112,7 @@ lint.flake8-tidy-imports.ban-relative-imports = "all"
 lint.isort.required-imports = ["from __future__ import annotations"]
 lint.select = ["ALL"]
 lint.ignore = [
+  "CPY001",  # Missing copyright notice at top of file
   "D100",  # Missing docstring in public module
   "D104",  # Missing docstring in public package
   "D107",  # Missing docstring in `__init__`
