@@ -1,9 +1,3 @@
-# tombi: format.rules.table-keys-order.disabled = true
-
-[build-system]
-requires = ["hatch-vcs", "hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "hed"
 description = "Extract release notes from markdown changelog"
@@ -17,6 +11,7 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Topic :: Software Development",
+  "Typing :: Typed",
 ]
 dependencies = [
   "cyclopts>=4.5.0",
@@ -27,27 +22,60 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[project.scripts]
-hed = "hed.cli:app"
-
 [project.urls]
 Repository = "https://github.com/tahv/hed"
 
+[project.scripts]
+hed = "hed.cli:app"
+
 [dependency-groups]
-dev = ["coverage>=7.13.1", "mypy>=1.19.1", "pytest>=9.0.2"]
+dev = [
+  { include-group = "test" },
+  { include-group = "types" },
+]
+test = [
+  "coverage>=7.13.1",
+  "pytest>=9.0.2",
+]
+types = [
+  "mypy>=1.19.1",
+]
+
+[build-system]
+requires = [
+  "hatchling==1.32.0",
+  "uv-dynamic-versioning==0.14.1",
+]
+build-backend = "hatchling.build"
 
 [tool.coverage]
-paths.ctx = ["src/hed", "*/src/hed", "*\\src\\hed"]
-run.source_pkgs = ["hed"]
 run.branch = true
-run.omit = ["src/hed/__main__.py"]
+run.omit = ["*/__main__.py"]
+run.source = ["src"]
 report.show_missing = true
 report.skip_covered = true
 report.exclude_lines = [
-  "# pragma: no cover",
+  '# pragma: no cover\b',
+  '^\s*raise AssertionError\b',
+  '^\s*raise NotImplementedError\b',
+  '^\s*return NotImplemented\b',
+  '^\s*raise\s*$',
   "if (False|0|TYPE_CHECKING):",
   "if __name__ == ['\"]__main__['\"]:",
+  '(^|:)\s*\.\.\.\s*(#|$)',
+  "-> ['\"]?NoReturn['\"]?:",
 ]
+
+[tool.creosote]
+include-deferred = true
+sections = [
+  "project.dependencies",
+  "project.optional-dependencies.test",
+  "project.optional-dependencies.types",
+]
+
+[tool.hatch]
+version.source = "uv-dynamic-versioning"
 
 [tool.hed]
 changelog = "CHANGELOG.md"
@@ -58,21 +86,28 @@ capture-start = '^## \[{tag}\]'
 capture-end = "^## "
 softbreak = false
 
-[tool.hatch]
-version.source = "vcs"
-version.raw-options.local_scheme = "no-local-version"
-build.targets.wheel.packages = ["src/hed"]
-
 [tool.mypy]
 strict = true
 mypy_path = "src"
 files = ["src", "tests"]
 untyped_calls_exclude = ["cyclopts", "mistletoe"]
 
+[tool.pytest]
+addopts = [
+  "--doctest-modules",
+  "--doctest-report=ndiff",
+  "--durations-min=0.005",
+  "--durations=0",
+  "--import-mode=importlib",
+]
+minversion = "9.0"
+testpaths = ["src", "tests"]
+
 [tool.ruff]
-src = ["src"]
+format.preview = true
 include = ["src/**/*.py", "tests/**/*.py", "**/pyproject.toml"]
 lint.pydocstyle.convention = "google"
+lint.preview = false
 lint.flake8-tidy-imports.ban-relative-imports = "all"
 lint.isort.required-imports = ["from __future__ import annotations"]
 lint.select = ["ALL"]
@@ -86,10 +121,20 @@ lint.ignore = [
   "S101",  # Use of `assert` detected
   "TD003",  # Missing issue link for this TODO
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/test_*.py" = [
+lint.per-file-ignores."tests/**/test_*.py" = [
   "D103",  # Missing docstring in public function
+]
+
+[tool.rumdl]
+line_length = 80
+flavor = "standard"
+MD013.reflow = true
+MD013.reflow-mode = "semantic-line-breaks"
+per-file-ignores."changelog.d/*.md" = [
+  "MD041",  # First line in file should be a level 1 heading
+]
+per-file-ignores.".gitlab/merge_request_templates/Default.md" = [
+  "MD041",  # First line in file should be a level 1 heading
 ]
 
 [tool.towncrier]
@@ -100,21 +145,23 @@ title_format = ""
 issue_format = "[!{issue}](https://github.com/tahv/hed/issues/{issue})"
 template = "changelog.d/template.md.jinja"
 type = [
-  # When something public gets removed in a breaking way
-  { name = "Breaking changes", directory = "break" },
-  # New public APIs, new behavior in existing features, non-breaking changes
-  { name = "Enhancements", directory = "feat" },
-  # Undesired behavior that got fixed
-  { name = "Bug fixes", directory = "fix" },
-  # Notable updates to the documentation
-  { name = "Documentation", directory = "doc" },
-  # Internal changes that rewrite/restructure code without changing the API
-  { name = "Other changes", directory = "other" },
-  # Changes that does not affect production code, e.g., modifying `.gitignore`
-  { name = "Miscellaneous changes", directory = "chore" },
+  { directory = "break", name = "Breaking changes", showcontent = true },
+  { directory = "feat", name = "Enhancements", showcontent = true },
+  { directory = "fix", name = "Bug fixes", showcontent = true },
+  { directory = "docs", name = "Documentation", showcontent = true },
+  { directory = "refactor", name = "Refactorings", showcontent = true },
+  { directory = "style", name = "Miscellaneous", showcontent = true },
+  { directory = "chore", name = "Miscellaneous", showcontent = true },
+  { directory = "ci", name = "Miscellaneous", showcontent = true },
+  { directory = "test", name = "Miscellaneous", showcontent = false },
+  { directory = "revert", name = "Revert", showcontent = true },
 ]
 
 [tool.ty]
+analysis.respect-type-ignore-comments = false
+src.include = ["src", "tests"]
+terminal.output-format = "concise"
+terminal.error-on-warning = true
 
 [tool.typos.default.extend-words]
 hed = "hed"
@@ -126,3 +173,7 @@ cache-keys = [
   { file = "pyproject.toml" },
   { git = { commit = true, tags = true } },
 ]
+
+[tool.uv-dynamic-versioning]
+bump = true
+pattern = "default-unprefixed"

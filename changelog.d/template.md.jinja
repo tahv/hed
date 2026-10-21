@@ -1,7 +1,9 @@
 {%- if versiondata["version"] == "main" -%}
 ## Changes for the Upcoming Release
 {% else -%}
-## [{{ versiondata["version"] }}](https://github.com/tahv/hed/releases/tag/{{ versiondata["version"] }}) - {{ versiondata["date"] }}
+## [{{ versiondata["version"] }}](https://gitlab.com/tahv/menuet/-/releases/{{ versiondata["version"] }})
+
+Released on {{ versiondata["date"] }}.
 {% endif %}
 {% for section, _ in sections.items() %}
 {% if sections[section] %}
@@ -14,8 +16,12 @@
 {%- set t = text.split("\n\n", 1) %}
 {%- set text = [t[0], t[1]|indent(2, true)] | join("\n\n") + "\n" %}
 {% endif %}
+{% if issues %}
 - {{ issues|join(',\n  ') }}:
   {{ text }}
+{% else -%}
+- {{ text }}
+{% endif %}
 {% endfor %}
 {% endfor %}
 
