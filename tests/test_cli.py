@@ -662,7 +662,7 @@ def test_warning_failed_to_find_previous_tag(
     assert capsys.readouterr().err == textwrap.dedent("""\
     warning: Failed to find previous tag of '1.0.1'
     caused by: hed.git.TagNotFoundError: 1.0.1
-    caused by: KeyError: 'refs/tags/1.0.1'
+    caused by: _pygit2.NotFoundError: 'refs/tags/1.0.1'
     """)
 
 
